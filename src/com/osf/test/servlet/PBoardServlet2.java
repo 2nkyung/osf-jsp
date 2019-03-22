@@ -17,28 +17,29 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-import com.osf.test.service.PBoardService;
-import com.osf.test.service.impl.PBoardServiceImpl;
+import com.osf.test.service.PBoardService2;
+import com.osf.test.service.impl.PBoardServiceImpl2;
+import com.osf.test.vo.PhotoBoardVO;
 
-public class PBoardServlet extends HttpServlet {
+public class PBoardServlet2 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static String savePath = "D:\\study\\workspace\\osf-jsp\\WebContent\\upload";
-	private PBoardService  pbs = new PBoardServiceImpl();
+	private PBoardService2  pbs = new PBoardServiceImpl2();
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String uri = request.getRequestURI();
-		uri = uri.replace("/pboard/", "");
+		uri = uri.replace("/pboard2/", "");
 		if("list".equals(uri)) {
 			request.setAttribute("pBoardList", pbs.selectPBoardList());
-			RequestDispatcher rd = request.getRequestDispatcher("/views/photo-board/list.jsp");
+			RequestDispatcher rd = request.getRequestDispatcher("/views/photo-board2/list.jsp");
 			rd.forward(request, response);
 			return;
 		}else {
 			try {
 				int pbNum = Integer.parseInt(uri);
 				request.setAttribute("pBoard", pbs.selectPBoard(pbNum));
-				RequestDispatcher rd = request.getRequestDispatcher("/views/photo-board/view.jsp");
+				RequestDispatcher rd = request.getRequestDispatcher("/views/photo-board2/view.jsp");
 				rd.forward(request, response);
 				return;
 			}catch(NumberFormatException e) {
@@ -52,7 +53,7 @@ public class PBoardServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String uri = request.getRequestURI();
-		uri = uri.replace("/pboard/", "");
+		uri = uri.replace("/pboard2/", "");
 		if ("insert".equals(uri)) {
 			DiskFileItemFactory dfiFactory = new DiskFileItemFactory();
 			String tmpPath = System.getProperty("java.io.tmpdir");
@@ -80,9 +81,14 @@ public class PBoardServlet extends HttpServlet {
 						fi.write(saveFile);
 					}
 				}
-				if(pbs.insertBoard(pBoard) ==1) {
+				PhotoBoardVO pb = new PhotoBoardVO();
+				pb.setPbTitle(pBoard.get("pb_title"));
+				pb.setPbContent(pBoard.get("pb_content"));
+				pb.setPbRealPath(pBoard.get("pb_real_path"));
+				pb.setPbFilePath(pBoard.get("pb_file_path"));
+				if(pbs.insertPBoard(pb) ==1) {
 					request.setAttribute("msg", "집중해라!");
-					request.setAttribute("url", "/views/photo-board/insert.jsp");
+					request.setAttribute("url", "/views/photo-board2/insert.jsp");
 					RequestDispatcher rd = request.getRequestDispatcher("/views/result.jsp");
 					rd.forward(request, response);
 					return;
